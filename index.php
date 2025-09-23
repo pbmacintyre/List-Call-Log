@@ -12,18 +12,18 @@ show_errors();
 
 page_header(0);
 
-function show_form($message, $label = "", $print_again = false) {
+function show_form($message, $print_again = false) {
 
     ?>
     <form action="" method="post" enctype="multipart/form-data">
-        <table class="EditTable">
+        <table class="EditTable" >
             <tr class="CustomTable">
                 <td colspan="2" class="CustomTableFullCol">
                     <img src="images/rc-logo.png"/>
                     <h2><?php echo app_name(); ?></h2>
                     <?php
                     if ($print_again == true) {
-                        echo "<p class='msg_bad'>" . $message . "</strong></font>";
+                        echo "<p class='msg_bad'>" . $message . "</p>";
                     } else {
                         echo "<p class='msg_good'>" . $message . "</p>";
                     } ?>
@@ -32,61 +32,32 @@ function show_form($message, $label = "", $print_again = false) {
             </tr>
             <tr class="CustomTable">
                 <td class="left_col">
-                    <p style='display: inline;'>Receiving SMS #:</p>
+                    <p style='display: inline;'>Phone # for log:</p>
                 </td>
                 <td class="right_col">
-                    <input type="text" name="to_sms_number">
+                    <input type="text" name="log_number">
                 </td>
             </tr>
             <tr class="CustomTable">
                 <td class="left_col">
-                    <p style='display: inline;'>SMS Message:</p>
+                    <p style='display: inline;'>Start Date for log:</p>
                 </td>
                 <td class="right_col">
-                    <textarea name="sms_message"></textarea>
+                    <input type="text" name="start_date">
+                </td>
+            </tr>
+            <tr class="CustomTable">
+                <td class="left_col">
+                    <p style='display: inline;'>End Date for log:</p>
+                </td>
+                <td class="right_col">
+                    <input type="text" name="end_date">
                 </td>
             </tr>
             <tr class="CustomTable">
                 <td colspan="2" class="CustomTableFullCol">
                     <br/>
-                    <input type="submit" class="submit_button" value="   Send SMS   " name="send_sms">
-                </td>
-            </tr>
-            <tr class="CustomTable">
-                <td colspan="2" class="CustomTableFullCol">
-                    <hr>
-                </td>
-            </tr>
-            <tr class="CustomTable">
-                <td class="left_col">
-                    <p style='display: inline; '>Receiving Fax #:</p>
-                </td>
-                <td class="right_col">
-                    <input type="text" name="to_fax_number">
-                </td>
-            </tr>
-            <tr class="CustomTable">
-                <td class="left_col">
-                    <p style='display: inline; <?php if ($label == "cover_note") echo "color:red"; ?>'>Fax Cover
-                        Note:</p>
-                </td>
-                <td class="right_col">
-                    <input type="text" name="cover_note">
-                </td>
-            </tr>
-            <tr class="CustomTable">
-                <td class="left_col">
-                    <p style='display: inline; <?php if ($label == "file_to_fax") echo "color:red"; ?>'>Upload file to
-                        Fax:</p>
-                </td>
-                <td class="right_col">
-                    <input type="file" name="file_to_fax" id="file_to_fax">
-                </td>
-            </tr>
-            <tr class="CustomTable">
-                <td colspan="2" class="CustomTableFullCol">
-                    <br/>
-                    <input type="submit" class="submit_button" value="   Send Fax   " name="send_fax">
+                    <input type="submit" class="submit_button" value="   Retrieve Logs   " name="get_logs">
                 </td>
             </tr>
             <tr class="CustomTable">
@@ -99,99 +70,42 @@ function show_form($message, $label = "", $print_again = false) {
     <?php
 }
 
-function check_sms_form() {
+function check_form() {
     show_errors();
 
     $print_again = false;
-    $label = "";
     $message = "";
 
     /* ============================================ */
     /* ====== START data integrity checks ========= */
     /* ============================================ */
 
-    $to_sms_number = strip_tags($_POST['to_sms_number']);
-    $sms_message = strip_tags($_POST['sms_message']);
+    $log_number = strip_tags($_POST['log_number']);
+    $start_date = strip_tags($_POST['start_date']);
+    $end_date = strip_tags($_POST['end_date']);
 
-    if ($sms_message == "") {
+    if ($log_number == "" ) {
         $print_again = true;
-        $message = "No SMS message body has been provided";
-    }
-    if ($to_sms_number == "") {
-        $print_again = true;
-        $message = "No receiving SMS Number has been provided";
+        $message = "No phone number has been provided, how can we retrieve logs?";
     }
 
     /* ========================================== */
     /* ====== END data integrity checks ========= */
     /* ========================================== */
     if ($print_again) {
-        show_form($message);
+        show_form($message, $print_again);
     } else {
-        send_sms($to_sms_number, $sms_message);
-        $message = "SMS message has been sent Successfully";
-        show_form($message);
+        get_logs($log_number, $start_date, $end_date);
     }
-
-}
-
-function check_fax_form() {
-    show_errors();
-
-    $print_again = false;
-    $label = "";
-    $message = "";
-
-    /* ============================================ */
-    /* ====== START data integrity checks ========= */
-    /* ============================================ */
-
-    $to_fax_number = strip_tags($_POST['to_fax_number']);
-    $cover_note = strip_tags($_POST['cover_note']);
-    $target_file = basename($_FILES["file_to_fax"]["name"]);
-
-    if ($target_file == "") {
-        $print_again = true;
-        $label = "";
-        $message = "No file selected to be uploaded";
-    }
-    if ($cover_note == "") {
-        $print_again = true;
-        $label = "cover_note";
-        $message = "No cover note has been provided";
-    }
-    if ($to_fax_number == "") {
-        $print_again = true;
-        $label = "to_fax_number";
-        $message = "No receiving Fax Number has been provided";
-    }
-
-    /* ========================================== */
-    /* ====== END data integrity checks ========= */
-    /* ========================================== */
-
-    $file_with_path = upload_file();
-
-    $fax_sent_id = send_fax($to_fax_number, $file_with_path, $cover_note);
-    if ($fax_sent_id > 0) {
-        $print_again = true;
-        $label = "";
-        $message = "Fax sent successfully (Sent id): " . $fax_sent_id;
-        // clean out the file
-        unlink($file_with_path);
-    }
-    show_form($message, $label, $print_again);
 }
 
 /* ============= */
 /*  --- MAIN --- */
 /* ============= */
-if (isset($_POST['send_sms'])) {
-    check_sms_form();
-} elseif (isset($_POST['send_fax'])) {
-    check_fax_form();
+if (isset($_POST['get_logs'])) {
+    check_form();
 } else {
-    $message = "Please provide the needed information. <br/><br/>";
+    $message = "Please provide the needed information.";
     show_form($message);
 }
 
