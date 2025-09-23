@@ -41,21 +41,30 @@ function ringcentral_sdk () {
     $controller = array('SDK' => $sdk, 'platform' => $platform);
     return $controller;
 }
-function send_sms($to_mobile, $message) {
+function get_logs($log_number, $start_date, $end_date) {
 	$controller = ringcentral_sdk();
 	$platform = $controller['platform'];
 
 	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 	$dotenv->load();
 
-	$from_mobile = $_ENV['RC_MOBILE_SENDING_NUMBER'];
-
 	try {
-		$apiResponse = $platform->post('/restapi/v1.0/account/~/extension/~/sms',
-			array('from' => array('phoneNumber' => $from_mobile),
-				'to' => array(array('phoneNumber' => $to_mobile)),
-				'text' => $message,)
+		$queryParams = array(
+			'dateFrom' => "2025-09-01T00:00:00.000Z",
+			'dateTo' => "2025-09-23T23:59:59.009Z",
+			'view' => "Detailed",
+			'direction' => "Inbound",
+			'type' => "Voice"
 		);
+
+		$endpoint = "/restapi/v1.0/account/~/extension/~/call-log";
+		$resp = $platform->get($endpoint, $queryParams);
+		echo_spaces("Response", $resp->json());
+//		foreach ($resp->json()->records as $record) {
+////			print_r (json_encode($record, JSON_PRETTY_PRINT));
+//			echo_spaces("Response", $record);
+//		}
+		exit();
 	} catch (\RingCentral\SDK\Http\ApiException $e) {
 		// craft a friendly message here.
 		$return_message = "There was an error sending the SMS message, Please try again later <br/>" . $e->getMessage();
