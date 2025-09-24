@@ -15,6 +15,9 @@ function page_header() {
 function page_footer() {
     echo "</html>";
 }
+function output_header() {
+	echo "<html ><head ><title >" . app_name() . "</title></head>";
+}
 /* =================== */
 /* Turn on Error codes */
 /* =================== */

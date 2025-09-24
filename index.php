@@ -10,11 +10,8 @@ require_once('includes/ringcentral-php-functions.inc');
 
 show_errors();
 
-page_header(0);
-
 function show_form($message, $print_again = false) {
-
-    ?>
+    page_header(); ?>
     <form action="" method="post" enctype="multipart/form-data">
         <table class="EditTable" >
             <tr class="CustomTable">
@@ -40,18 +37,53 @@ function show_form($message, $print_again = false) {
             </tr>
             <tr class="CustomTable">
                 <td class="left_col">
-                    <p style='display: inline;'>Start Date for log:</p>
+                    <p style='display: inline;'>Call Direction:</p>
                 </td>
                 <td class="right_col">
-                    <input type="text" name="start_date">
+                    <select name="call_direction">
+                        <option value="Inbound" selected>In Bound</option>
+                        <option value="Outbound">Out Bound</option>
+                        <option value="">Both Directions</option>
+                    </select>
                 </td>
             </tr>
             <tr class="CustomTable">
                 <td class="left_col">
-                    <p style='display: inline;'>End Date for log:</p>
+                    <p style='display: inline;'>Call Types:</p>
                 </td>
                 <td class="right_col">
-                    <input type="text" name="end_date">
+                    <select name="call_types">
+                            <option value="Voice" selected>Voice</option>
+                            <option value="Fax">Fax</option>
+                            <option value="">Both Voice & Fax</option>
+                    </select>
+                </td>
+            </tr>
+            <tr class="CustomTable">
+                <td class="left_col">
+                    <p style='display: inline;'>Call Log Details:</p>
+                </td>
+                <td class="right_col">
+                    <select name="call_details">
+                        <option value="Simple" selected>Simple</option>
+                        <option value="Detailed">Detailed</option>
+                    </select>
+                </td>
+            </tr>
+            <tr class="CustomTable">
+                <td class="left_col">
+                    <p style='display: inline;'>Start Date for log:</p>
+                </td>
+                <td class="right_col">
+                    <input type="text" name="start_date" placeholder="YYYY-MM-DD format">
+                </td>
+            </tr>
+            <tr class="CustomTable">
+                <td class="left_col">
+                    <p style='display: inline;'>End Date for log: </p>
+                </td>
+                <td class="right_col">
+                    <input type="text" name="end_date" placeholder="YYYY-MM-DD format">
                 </td>
             </tr>
             <tr class="CustomTable">
@@ -81,6 +113,9 @@ function check_form() {
     /* ============================================ */
 
     $log_number = strip_tags($_POST['log_number']);
+    $direction = strip_tags($_POST['call_direction']);
+    $call_details = strip_tags($_POST['call_details']);
+    $call_type = strip_tags($_POST['call_types']);
     $start_date = strip_tags($_POST['start_date']);
     $end_date = strip_tags($_POST['end_date']);
 
@@ -95,7 +130,7 @@ function check_form() {
     if ($print_again) {
         show_form($message, $print_again);
     } else {
-        get_logs($log_number, $start_date, $end_date);
+        get_logs($log_number, $direction, $call_type, $call_details, $start_date, $end_date);
     }
 }
 
