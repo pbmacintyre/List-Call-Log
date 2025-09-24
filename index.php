@@ -19,7 +19,7 @@ function show_form($message, $print_again = false) {
                     <img src="images/rc-logo.png"/>
                     <h2><?php echo app_name(); ?></h2>
                     <?php
-                    if ($print_again == true) {
+                    if ($print_again) {
                         echo "<p class='msg_bad'>" . $message . "</p>";
                     } else {
                         echo "<p class='msg_good'>" . $message . "</p>";
