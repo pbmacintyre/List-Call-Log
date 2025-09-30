@@ -42,6 +42,7 @@ function ringcentral_sdk() {
 }
 
 function get_logs($log_number, $direction, $call_type, $call_details, $startDate, $endDate) {
+	show_errors();
 
 	$controller = ringcentral_sdk();
 	$platform = $controller['platform'];
@@ -66,23 +67,26 @@ function get_logs($log_number, $direction, $call_type, $call_details, $startDate
 		$endpoint = "/restapi/v1.0/account/~/extension/~/call-log";
 		$resp = $platform->get($endpoint, $queryParams);
 //		echo_spaces("Response", $resp->json());
-		foreach ($resp->json()->records as $record) {//
-			if ($record->duration > 300) {
-				// duration is in seconds 300 = 5 minutes
-				echo_spaces("Call Start Date", date("Y-M-d", strtotime($record->startTime)));
-				echo_spaces("Call Type", $record->type);
-				echo_spaces("Call From", $record->from->name);
-				echo_spaces("Call From #", $record->from->phoneNumber);
-				echo_spaces("Call From Location", $record->from->location, 2);
+//		echo_spaces("Response record", $resp->json()->records);
+		if (count($resp->json()->records) >= 1) {
+			foreach ($resp->json()->records as $record) {
+				if ($record->duration > 300) {
+					// duration is in seconds 300 = 5 minutes
+					echo_spaces("Call Start Date", date("Y-M-d", strtotime($record->startTime)));
+					echo_spaces("Call Type", $record->type);
+					echo_spaces("Call From", $record->from->name);
+					echo_spaces("Call From #", $record->from->phoneNumber);
+					echo_spaces("Call From Location", $record->from->location, 2);
+				}
+				echo_spaces("Response record", $record);
 			}
-			echo_spaces("Response", $record);
+		} else {
+			echo_spaces("No log records found for provided parameters.");
 		}
 	} catch (\RingCentral\SDK\Http\ApiException $e) {
 		// craft a friendly message here.
 		echo_spaces("There was an error retrieving the call logs, Please try again later", $e->getMessage());
 	}
-
-	return;
 }
 
 function send_fax($to_fax_number, $file_with_path, $cover_note) {
