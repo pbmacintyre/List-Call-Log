@@ -47,53 +47,6 @@ function ringcentral_dump_obj($object) {
     var_dump($object);
     echo "</pre>";
 }
-function required_field() {
-    echo "<p style='color: red; display: inline'>*</p>" ;
-}
-
-function upload_file () {
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // Directory where the file will be uploaded
-        $target_dir = "uploads/";
-
-        // Path to the target file
-        $target_file = $target_dir . basename($_FILES["file_to_fax"]["name"]);
-
-        // Variable to keep track of upload status
-        $uploadOk = 1;
-
-        // Get file extension
-        $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Check file size (optional, e.g., limit to 5MB)
-        if ($_FILES["file_to_fax"]["size"] > 5000000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-
-        // Allow certain file formats (optional)
-        // image files and PDFs
-        $allowedTypes = array("jpg", "png", "jpeg", "pdf");
-        if (!in_array($fileType, $allowedTypes)) {
-            echo "Sorry, only JPG, PNG & PDF files are allowed.";
-            $uploadOk = 0;
-        }
-
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            echo "Sorry, your file was not uploaded.";
-            // If everything is ok, try to upload file
-        } else {
-            if (move_uploaded_file($_FILES["file_to_fax"]["tmp_name"], $target_file)) {
-                $filename = htmlspecialchars(basename($_FILES["file_to_fax"]["name"])) ;
-            } else {
-                echo "Sorry, there was an error uploading your file.";
-            }
-        }
-    }
-    return $target_file ;
-}
 
 function echo_plain_text($text, $color, $font_size="large", $lines=0) {
     echo "<br /><p style='color: $color; display: inline; font-size: $font_size'>$text</p>" ;
